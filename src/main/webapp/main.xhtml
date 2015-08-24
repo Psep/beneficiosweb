@@ -159,18 +159,18 @@
 												<div class="form-group">
 													<label>RUN del Beneficiario (a)</label>
 													<h:inputText id="run"
-														value="#{bandejaTareasBean.beneficiario.run}"
+														value="#{bandejaTareasBean.solicitante.run}"
 														disabled="true" styleClass="form-control" />
 												</div>
 												<div class="form-group">
 													<label>Nombre del Beneficiario (a)</label>
 													<h:inputText id="nombre"
-														value="#{bandejaTareasBean.beneficiario.nombre}"
+														value="#{bandejaTareasBean.solicitante.nombre}"
 														disabled="true" styleClass="form-control" />
 												</div>
 												<div class="form-group">
 													<label>Resultado</label>
-													<p style="white-space: pre-wrap;">#{bandejaTareasBean.respuesta}</p>
+													<p style="white-space: pre-wrap;">#{bandejaTareasBean.solicitante.mensaje}</p>
 												</div>
 												<h:commandButton id="aceptar" value="Aceptar"
 													styleClass="btn btn-outline btn-primary"

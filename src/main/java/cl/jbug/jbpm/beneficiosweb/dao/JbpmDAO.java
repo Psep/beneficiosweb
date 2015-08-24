@@ -1,35 +1,43 @@
 /*
  * Copyright (C) 2015  Pablo Sepúlveda P. (psep_AT_ti-nova_dot_cl)
  * 
- * This file is part of the jBPMClient.
- * jBPMClient is free software: you can redistribute it and/or modify
+ * This file is part of the beneficiosweb.
+ * beneficiosweb is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  * 
- * jBPMClient is distributed in the hope that it will be useful,
+ * beneficiosweb is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with jBPMClient.  If not, see <http://www.gnu.org/licenses/>.
+ * along with beneficiosweb.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cl.jbug.jbpm.beneficiosweb.dao;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jboss.logging.Logger;
+import org.kie.api.runtime.manager.audit.VariableInstanceLog;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.remote.client.api.RemoteRestRuntimeEngineFactory;
+import org.kie.services.client.api.RemoteRuntimeEngineFactory;
 
-import cl.jbug.jbpm.beneficiosweb.to.BeneficiarioTO;
-import cl.jbug.jbpm.beneficiosweb.utils.GenericUtils;
-import cl.jbug.jbpm.client.JBPMClient;
+import com.google.gson.Gson;
+
+import cl.jbug.jbpm.beneficios.Solicitante;
 
 /**
  * @author psep
@@ -40,20 +48,12 @@ public class JbpmDAO {
 	private static final Logger logger = Logger.getLogger(JbpmDAO.class);
 	private static final String DEPLOYMENT_ID = "cl.jbug.jbpm:beneficios:1.0";
 	private static final String PROCESS_DEF = "beneficios.IngresoSolicitud";
+
+	private static final String LOCALE = "en-UK";
+	private static final String BASE_URL = "http://localhost:8080/jbpm-console/";
+
 	private static final String actorId = "pepe";
 	private static final String password = "qwerty123";
-
-	/**
-	 * @param userId
-	 * @param passwd
-	 * @return
-	 */
-	private JBPMClient getJBPMClient() {
-		JBPMClient client = new JBPMClient("localhost", "8080", actorId,
-				password);
-
-		return client;
-	}
 
 	/**
 	 * @param taskId
@@ -62,115 +62,140 @@ public class JbpmDAO {
 	 */
 	public void completeTask(long taskId, Map<String, Object> params)
 			throws MalformedURLException {
-		if (params == null) {
-			params = new HashMap<String, Object>();
-		}
-
-		this.getJBPMClient().completeTask(DEPLOYMENT_ID, taskId, params);
+		startTask(DEPLOYMENT_ID, taskId);
+		endTask(DEPLOYMENT_ID, taskId, params);
 	}
-
+	
 	/**
-	 * @param processId
+	 * @param params
 	 * @return
 	 */
-	public Map<String, Object> getVariables(long processId) {
+	public Long startProcess(Solicitante solicitante) {
 		try {
-			return this.getJBPMClient().getVariables(DEPLOYMENT_ID, processId);
-		} catch (MalformedURLException e) {
-			logger.error(e, e);
-		}
-
-		return null;
-	}
-
-	/**
-	 * @param processId
-	 * @return
-	 */
-	public String getRespuesta(long processId) {
-		try {
-			Map<String, Object> variables = this.getVariables(processId);
-			String respuesta = (String) variables.get("resultado");
-
-			if (respuesta != null) {
-				respuesta = respuesta.replace("<br/>", "\n");
-
-				return respuesta;
-			}
-
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("solicitante", solicitante);
+			
+			ProcessInstance instance = initProcess(DEPLOYMENT_ID, PROCESS_DEF, params);
+			
+			return instance.getId();
+			
 		} catch (Exception e) {
 			logger.error(e, e);
 		}
-
-		return null;
-	}
-
-	/**
-	 * @param beneficiario
-	 * @throws Exception
-	 */
-	public Long startProcess(BeneficiarioTO beneficiario) throws Exception {
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("edad",
-				GenericUtils.getEdad(beneficiario.getFechaNacimiento()));
-		params.put("estadoCivil", beneficiario.getEstadoCivil());
-		params.put("nombre", beneficiario.getNombre());
-		params.put("numHijos", beneficiario.getNumHijos());
-		params.put("run", beneficiario.getRun());
-		params.put("sueldo", beneficiario.getSueldo());
-		params.put("sexo", beneficiario.getGenero());
-
-		ProcessInstance instance = this.getJBPMClient().startProcess(
-				DEPLOYMENT_ID, PROCESS_DEF, params);
 		
-		return instance.getId();
+		return null;
 	}
-
+	
 	/**
 	 * @param processId
 	 * @return
 	 */
-	public BeneficiarioTO getBeneficiarioByProcess(long processId) {
+	public Solicitante getSolicitante(long processInstanceId) {
 		try {
-			BeneficiarioTO beneficiario = new BeneficiarioTO();
-			Map<String, Object> variables = this.getVariables(processId);
-
-			beneficiario
-					.setRun(Integer.parseInt((String) variables.get("run")));
-			beneficiario.setNombre((String) variables.get("nombre"));
-			beneficiario.setEstadoCivil(Integer.parseInt((String) variables
-					.get("estadoCivil")));
-			beneficiario.setGenero(Integer.parseInt((String) variables
-					.get("sexo")));
-			beneficiario.setNumHijos(Integer.parseInt((String) variables
-					.get("numHijos")));
-			beneficiario.setSueldo(Integer.parseInt((String) variables
-					.get("sueldo")));
-
-			return beneficiario;
-
+			Map<String, Object> variables = this.getVariables(processInstanceId);
+			String json = (String) variables.get("resultado");
+			
+			Solicitante solicitante = new Gson().fromJson(json, Solicitante.class);
+			solicitante.setMensaje(solicitante.getMensaje().replace("<br/>", "\n"));
+			
+			return solicitante;
+			
 		} catch (Exception e) {
 			logger.error(e, e);
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * @return
 	 */
-	public List<TaskSummary> listTasksByActor() {
+	public List<TaskSummary> listTasksByPotencialOwner() {
 		List<TaskSummary> tasks = new ArrayList<TaskSummary>();
-
+		
 		try {
-			tasks = this.getJBPMClient().listTasksByPotencialOwner(
-					DEPLOYMENT_ID);
-
-		} catch (MalformedURLException e) {
+			tasks = getTaskService(DEPLOYMENT_ID)
+					.getTasksAssignedAsPotentialOwner(actorId, LOCALE);
+			
+		} catch (Exception e) {
 			logger.error(e, e);
 		}
-
+		
 		return tasks;
+	}
+	
+	/**
+	 * @param processInstanceId
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	public Map<String, Object> getVariables(long processInstanceId)
+			throws MalformedURLException {
+		Map<String, Object> variables = new HashMap<String, Object>();
+		RuntimeEngine engine = getRuntimeEngine(DEPLOYMENT_ID);
+
+		AuditService auditService = engine.getAuditService();
+
+		List<? extends VariableInstanceLog> variablesLog = auditService
+				.findVariableInstances(processInstanceId);
+
+		for (VariableInstanceLog v : variablesLog) {
+			logger.info(v.getVariableId() + ": " + v.getValue());
+			variables.put(v.getVariableId(), v.getValue());
+		}
+
+		return variables;
+	}
+
+	public void startTask(String deploymentId, long taskId)
+			throws MalformedURLException {
+		TaskService taskService = getTaskService(deploymentId);
+		taskService.start(taskId, actorId);
+	}
+
+	public void endTask(String deploymentId, long taskId,
+			Map<String, Object> params) throws MalformedURLException {
+		TaskService taskService = getTaskService(deploymentId);
+		taskService.complete(taskId, actorId, params);
+	}
+
+	public TaskService getTaskService(String deploymentId)
+			throws MalformedURLException {
+		RuntimeEngine engine = getRuntimeEngine(deploymentId);
+
+		TaskService taskService = engine.getTaskService();
+		taskService = engine.getTaskService();
+
+		return taskService;
+	}
+
+	public ProcessInstance initProcess(String deploymentId, String processDef,
+			Map<String, Object> params) throws MalformedURLException {
+		KieSession ksession = getRuntimeEngine(deploymentId).getKieSession();
+		ProcessInstance processInstance = null;
+
+		if (params == null) {
+			processInstance = ksession.startProcess(processDef);
+		} else {
+			processInstance = ksession.startProcess(processDef, params);
+		}
+
+		long procId = processInstance.getId();
+
+		logger.info("Proceso creado ID: " + procId);
+
+		return processInstance;
+	}
+
+	private RuntimeEngine getRuntimeEngine(String deploymentId)
+			throws MalformedURLException {
+		URL baseUrl = new URL(BASE_URL);
+		RemoteRestRuntimeEngineFactory restSessionFactory = RemoteRuntimeEngineFactory
+				.newRestBuilder().addDeploymentId(deploymentId).addUrl(baseUrl)
+				.addUserName(actorId).addPassword(password).addTimeout(24000)
+				.buildFactory();
+
+		return restSessionFactory.newRuntimeEngine();
 	}
 
 }

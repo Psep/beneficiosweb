@@ -52,8 +52,13 @@
 			<artifactId>jboss-logging-log4j</artifactId>
 			<version>2.2.0.CR1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3.1</version>
+		</dependency>
 
-		<!-- Dependencias del Cliente jBPM -->
+		<!-- Dependencias de jBPM -->
 		<dependency>
 			<groupId>org.kie</groupId>
 			<artifactId>kie-internal</artifactId>
@@ -99,12 +104,6 @@
 			<groupId>org.jbpm</groupId>
 			<artifactId>jbpm-runtime-manager</artifactId>
 			<version>6.2.0.Final</version>
-		</dependency>
-		<!-- Cliente jBPM -->
-		<dependency>
-			<groupId>cl.jbug.jbpm</groupId>
-			<artifactId>jBPMClient</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<repositories>

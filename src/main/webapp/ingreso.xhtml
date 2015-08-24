@@ -105,7 +105,7 @@
 											<div class="form-group">
 												<label>RUN del Beneficiario (a)</label>
 												<h:inputText id="runBeneficiario"
-													value="#{solicitudBean.beneficiario.run}" type="number"
+													value="#{solicitudBean.solicitante.run}" type="number"
 													styleClass="form-control" size="8" maxlength="8"
 													autofocus="true" placeholder="Ej: 12345678" required="true"
 													requiredMessage="Debe ingresar el RUN">
@@ -117,7 +117,7 @@
 											<div class="form-group">
 												<label>Nombre del Beneficiario (a)</label>
 												<h:inputText id="nombreBeneficiario"
-													value="#{solicitudBean.beneficiario.nombre}"
+													value="#{solicitudBean.solicitante.nombre}"
 													styleClass="form-control" size="60" maxlength="60"
 													placeholder="Ej: Pepito Los Palotes" required="true"
 													requiredMessage="Debe ingresar el nombre">
@@ -127,7 +127,7 @@
 											<div class="form-group">
 												<label>Fecha de Nacimiento del Beneficiario (a)</label>
 												<h:inputText id="nacBeneficiario"
-													value="#{solicitudBean.beneficiario.fechaNacimiento}"
+													value="#{solicitudBean.fechaNacimiento}"
 													styleClass="form-control" type="date"
 													placeholder="Ej: 01/01/1980"
 													converterMessage="Error en el formato, debe ser dd/MM/aaaa"
@@ -142,7 +142,7 @@
 											<div class="form-group">
 												<label>Sexo del Beneficiario (a)</label>
 												<h:selectOneMenu id="generoBeneficiario"
-													value="#{solicitudBean.beneficiario.genero}"
+													value="#{solicitudBean.solicitante.sexo}"
 													styleClass="form-control">
 													<f:ajax event="blur" />
 													<f:selectItems value="#{solicitudBean.generos}" />
@@ -151,7 +151,7 @@
 											<div class="form-group">
 												<label>Estado Civil del Beneficiario (a)</label>
 												<h:selectOneMenu id="estadoCivilBene"
-													value="#{solicitudBean.beneficiario.estadoCivil}"
+													value="#{solicitudBean.solicitante.estadoCivil}"
 													styleClass="form-control">
 													<f:ajax event="blur" />
 													<f:selectItems value="#{solicitudBean.estados}" />
@@ -160,7 +160,7 @@
 											<div class="form-group">
 												<label>N° de Hijos del Beneficiario (a)</label>
 												<h:inputText id="hijosBeneficiario"
-													value="#{solicitudBean.beneficiario.numHijos}"
+													value="#{solicitudBean.solicitante.numHijos}"
 													styleClass="form-control" min="0" max="20" type="number"
 													placeholder="Ej: 2" size="2" required="true"
 													requiredMessage="Debe ingresar el número de hijos">
@@ -174,7 +174,7 @@
 												<div class="input-group">
 													<span class="input-group-addon">$</span>
 													<h:inputText id="sueldoBeneficiario"
-														value="#{solicitudBean.beneficiario.sueldo}"
+														value="#{solicitudBean.solicitante.sueldo}"
 														styleClass="form-control" min="0" max="999999"
 														type="number" placeholder="Ej: 250000" size="6"
 														required="true" requiredMessage="Debe ingresar el sueldo">
