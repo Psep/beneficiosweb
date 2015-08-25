@@ -73,8 +73,11 @@
 									<h:outputText value="#{userBean.user.username}" />
 								</h:outputLink></li>
 							<li class="divider"></li>
-							<li><a href="login.xhtml"><i
-									class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+							<li>
+								<h:commandLink action="#{userBean.logoutAction}">
+									<i class="fa fa-sign-out fa-fw"></i>Logout
+								</h:commandLink>
+							</li>
 						</ul></li>
 				</ul>
 
@@ -93,8 +96,10 @@
 									</span>
 								</div>
 							</li>
-							<li><a href="main.xhtml"><i class="fa fa-inbox fa-fw"></i>
+							<h:panelGroup rendered="#{!userBean.esOperador}">
+								<li><a href="main.xhtml"><i class="fa fa-inbox fa-fw"></i>
 									Bandeja de Tareas</a></li>
+							</h:panelGroup>
 							<li><a href="ingreso.xhtml"><i class="fa fa-edit fa-fw"></i>
 									Ingreso de Solicitud</a></li>
 						</ul>

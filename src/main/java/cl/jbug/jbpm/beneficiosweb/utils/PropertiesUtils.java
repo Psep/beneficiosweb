@@ -15,47 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with beneficiosweb.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cl.jbug.jbpm.beneficiosweb.to;
+package cl.jbug.jbpm.beneficiosweb.utils;
 
-import java.io.Serializable;
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * @author psep
  *
  */
-public class UserTO implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private String username;
-	private String password;
-	private List<String> roles;
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public List<String> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
+public final class PropertiesUtils {
+	
+	public static final String USERS_FILE = "/home/psep/jbpm-installer/wildfly-8.1.0.Final/standalone/configuration/users.properties";
+	public static final String ROLES_FILE = "/home/psep/jbpm-installer/wildfly-8.1.0.Final/standalone/configuration/roles.properties";
+	
+	public static final String getProperty(String key, String file) throws IOException {
+		InputStream input = new FileInputStream(file);
+		
+		Properties prop = new Properties();
+		prop.load(input);
+		
+		String value = prop.getProperty(key);
+		
+		input.close();
+		
+		return value;
 	}
 
 }

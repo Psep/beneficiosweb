@@ -72,8 +72,9 @@
 									<h:outputText value="#{userBean.user.username}" />
 								</h:outputLink></li>
 							<li class="divider"></li>
-							<li><a href="login.xhtml"><i
-									class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+							<li><h:commandLink action="#{userBean.logoutAction}">
+									<i class="fa fa-sign-out fa-fw"></i>Logout
+								</h:commandLink></li>
 						</ul></li>
 				</ul>
 
@@ -92,8 +93,10 @@
 									</span>
 								</div>
 							</li>
-							<li><a href="main.xhtml"><i class="fa fa-inbox fa-fw"></i>
+							<h:panelGroup rendered="#{!userBean.esOperador}">
+								<li><a href="main.xhtml"><i class="fa fa-inbox fa-fw"></i>
 									Bandeja de Tareas</a></li>
+							</h:panelGroup>
 							<li><a href="ingreso.xhtml"><i class="fa fa-edit fa-fw"></i>
 									Ingreso de Solicitud</a></li>
 						</ul>
@@ -104,155 +107,166 @@
 
 		<div id="page-wrapper">
 			<div class="container-fluid">
-				<div class="row">
-					<div class="col-lg-12">
-						<h1 class="page-header">Bandeja de Tareas</h1>
-					</div>
-				</div>
-				<h:form id="frmBandeja">
-					<div class="panel panel-default">
-						<div class="panel-heading">Tareas Pendientes</div>
-						<div class="panel-body">
-							<div class="table-responsive">
-								<h:dataTable id="listTask" value="#{bandejaTareasBean.tasks}"
-									var="task"
-									styleClass="table table-striped table-bordered table-hover">
-									<h:column>
-										<f:facet name="header">
-											<h:outputText value="ID" />
-										</f:facet>
-										<h:outputText value="#{task.id}" />
-									</h:column>
-									<h:column>
-										<f:facet name="header">
-											<h:outputText value="Nombre Tarea" />
-										</f:facet>
-										<h:outputText value="#{task.name}" />
-									</h:column>
-									<h:column>
-										<f:facet name="header">
-											<h:outputText value="Fecha de Creación" />
-										</f:facet>
-										<h:outputText value="#{task.createdOn}">
-											<f:convertDateTime pattern="dd/MM/yyyy" />
-										</h:outputText>
-									</h:column>
-									<h:column>
-										<f:facet name="header">
-											<h:outputText value="ID Proceso" />
-										</f:facet>
-										<h:outputText value="#{task.processInstanceId}" />
-									</h:column>
-									<h:column>
-										<f:facet name="header">
-											<h:outputText value="Estado" />
-										</f:facet>
-										<h:outputText value="#{task.status}" />
-									</h:column>
-									<h:column>
-										<f:facet name="header">
-											<h:outputText value="Acción" />
-										</f:facet>
-										<h:commandButton id="gestionar" value="Gestionar"
-											styleClass="btn btn-default"
-											action="#{bandejaTareasBean.gestionarAction(task)}">
-											<f:ajax render=":frmGestion" />
-										</h:commandButton>
-									</h:column>
-								</h:dataTable>
-							</div>
+				<h:panelGroup rendered="#{userBean.esOperador}">
+					<div class="row">
+						<div class="col-lg-12">
+							<h1 class="page-header">Acceso no permitido</h1>
 						</div>
 					</div>
-				</h:form>
-				<h:form id="frmGestion">
-					<h:panelGroup rendered="#{bandejaTareasBean.panelGestion}">
-						<div class="row">
-							<div class="col-lg-12">
-								<div class="panel panel-info">
-									<div class="panel-heading">Panel de Gestión</div>
-									<div class="panel-body">
-										<div class="row">
-											<div class="col-lg-6">
-												<div class="form-group">
-													<label>RUN del Beneficiario (a)</label>
-													<h:inputText id="run"
-														value="#{bandejaTareasBean.solicitante.run}"
-														disabled="true" styleClass="form-control" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{!userBean.esOperador}">
+					<div class="row">
+						<div class="col-lg-12">
+							<h1 class="page-header">Bandeja de Tareas</h1>
+						</div>
+					</div>
+					<h:form id="frmBandeja">
+						<div class="panel panel-default">
+							<div class="panel-heading">Tareas Pendientes</div>
+							<div class="panel-body">
+								<div class="table-responsive">
+									<h:dataTable id="listTask" value="#{bandejaTareasBean.tasks}"
+										var="task"
+										styleClass="table table-striped table-bordered table-hover">
+										<h:column>
+											<f:facet name="header">
+												<h:outputText value="ID" />
+											</f:facet>
+											<h:outputText value="#{task.id}" />
+										</h:column>
+										<h:column>
+											<f:facet name="header">
+												<h:outputText value="Nombre Tarea" />
+											</f:facet>
+											<h:outputText value="#{task.name}" />
+										</h:column>
+										<h:column>
+											<f:facet name="header">
+												<h:outputText value="Fecha de Creación" />
+											</f:facet>
+											<h:outputText value="#{task.createdOn}">
+												<f:convertDateTime pattern="dd/MM/yyyy" />
+											</h:outputText>
+										</h:column>
+										<h:column>
+											<f:facet name="header">
+												<h:outputText value="ID Proceso" />
+											</f:facet>
+											<h:outputText value="#{task.processInstanceId}" />
+										</h:column>
+										<h:column>
+											<f:facet name="header">
+												<h:outputText value="Estado" />
+											</f:facet>
+											<h:outputText value="#{task.status}" />
+										</h:column>
+										<h:column>
+											<f:facet name="header">
+												<h:outputText value="Acción" />
+											</f:facet>
+											<h:commandButton id="gestionar" value="Gestionar"
+												styleClass="btn btn-default"
+												action="#{bandejaTareasBean.gestionarAction(task)}">
+												<f:ajax render=":frmGestion" />
+											</h:commandButton>
+										</h:column>
+									</h:dataTable>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="frmGestion">
+						<h:panelGroup rendered="#{bandejaTareasBean.panelGestion}">
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="panel panel-info">
+										<div class="panel-heading">Panel de Gestión</div>
+										<div class="panel-body">
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>RUN del Beneficiario (a)</label>
+														<h:inputText id="run"
+															value="#{bandejaTareasBean.solicitante.run}"
+															disabled="true" styleClass="form-control" />
+													</div>
+													<div class="form-group">
+														<label>Nombre del Beneficiario (a)</label>
+														<h:inputText id="nombre"
+															value="#{bandejaTareasBean.solicitante.nombre}"
+															disabled="true" styleClass="form-control" />
+													</div>
+													<div class="form-group">
+														<label>Resultado</label>
+														<p style="white-space: pre-wrap;">#{bandejaTareasBean.solicitante.mensaje}</p>
+													</div>
+													<div class="form-group">
+														<label>Monto Total: $</label>
+														<h:outputText
+															value="#{bandejaTareasBean.solicitante.montoBono}" />
+													</div>
+													<h:commandButton id="aceptar" value="Aceptar"
+														styleClass="btn btn-outline btn-primary"
+														action="#{bandejaTareasBean.aceptarAction}">
+														<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
+													</h:commandButton>
+													<h:outputText value=" " />
+													<h:commandButton id="rechazar" value="Rechazar"
+														styleClass="btn btn-outline btn-danger"
+														action="#{bandejaTareasBean.rechazarAction}">
+														<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
+													</h:commandButton>
+													<h:outputText value=" " />
+													<h:commandButton id="cancelar" value="Cancelar"
+														styleClass="btn btn-default"
+														action="#{bandejaTareasBean.cancelarAction}">
+														<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
+													</h:commandButton>
 												</div>
-												<div class="form-group">
-													<label>Nombre del Beneficiario (a)</label>
-													<h:inputText id="nombre"
-														value="#{bandejaTareasBean.solicitante.nombre}"
-														disabled="true" styleClass="form-control" />
-												</div>
-												<div class="form-group">
-													<label>Resultado</label>
-													<p style="white-space: pre-wrap;">#{bandejaTareasBean.solicitante.mensaje}</p>
-												</div>
-												<div class="form-group">
-													<label>Monto Total: $</label>
-													<h:outputText value="#{bandejaTareasBean.solicitante.montoBono}" />
-												</div>
-												<h:commandButton id="aceptar" value="Aceptar"
-													styleClass="btn btn-outline btn-primary"
-													action="#{bandejaTareasBean.aceptarAction}">
-													<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
-												</h:commandButton>
-												<h:outputText value=" " />
-												<h:commandButton id="rechazar" value="Rechazar"
-													styleClass="btn btn-outline btn-danger"
-													action="#{bandejaTareasBean.rechazarAction}">
-													<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
-												</h:commandButton>
-												<h:outputText value=" " />
-												<h:commandButton id="cancelar" value="Cancelar"
-													styleClass="btn btn-default"
-													action="#{bandejaTareasBean.cancelarAction}">
-													<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
-												</h:commandButton>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-					</h:panelGroup>
-				</h:form>
-				<h:form id="frmObservaciones">
-					<h:panelGroup rendered="#{bandejaTareasBean.panelObservaciones}">
-						<div class="row">
-							<div class="col-lg-12">
-								<div class="panel panel-warning">
-									<div class="panel-heading">Panel de Observaciones</div>
-									<div class="panel-body">
-										<div class="row">
-											<div class="col-lg-6">
-												<div class="form-group">
-													<label>Observaciones</label>
-													<h:inputTextarea id="observaciones"
-														value="#{bandejaTareasBean.observaciones}" rows="3"
-														cols="10" styleClass="form-control" required="true"
-														requiredMessage="Debe ingresar las observaciones.">
-														<f:ajax event="blur" />
-													</h:inputTextarea>
-													<p class="help-block">Ingrese las observaciones del
-														rechazo.</p>
+						</h:panelGroup>
+					</h:form>
+					<h:form id="frmObservaciones">
+						<h:panelGroup rendered="#{bandejaTareasBean.panelObservaciones}">
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="panel panel-warning">
+										<div class="panel-heading">Panel de Observaciones</div>
+										<div class="panel-body">
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Observaciones</label>
+														<h:inputTextarea id="observaciones"
+															value="#{bandejaTareasBean.observaciones}" rows="3"
+															cols="10" styleClass="form-control" required="true"
+															requiredMessage="Debe ingresar las observaciones.">
+															<f:ajax event="blur" />
+														</h:inputTextarea>
+														<p class="help-block">Ingrese las observaciones del
+															rechazo.</p>
+													</div>
+													<h:commandButton id="enviar" value="Enviar"
+														styleClass="btn btn-default"
+														action="#{bandejaTareasBean.enviarObservaciones}">
+														<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
+													</h:commandButton>
 												</div>
-												<h:commandButton id="enviar" value="Enviar"
-													styleClass="btn btn-default"
-													action="#{bandejaTareasBean.enviarObservaciones}">
-													<f:ajax render=":frmBandeja :frmGestion :frmObservaciones" />
-												</h:commandButton>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-					</h:panelGroup>
-				</h:form>
+						</h:panelGroup>
+					</h:form>
+				</h:panelGroup>
 			</div>
 		</div>
+
 	</div>
 	<script src="resources/bower_components/jquery/dist/jquery.min.js"></script>
 	<script

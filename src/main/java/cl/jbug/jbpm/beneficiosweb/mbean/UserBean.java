@@ -18,14 +18,19 @@
 package cl.jbug.jbpm.beneficiosweb.mbean;
 
 import java.io.Serializable;
-
+import java.util.Arrays;
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+
 import org.jboss.logging.Logger;
 
 import cl.jbug.jbpm.beneficiosweb.to.UserTO;
 import cl.jbug.jbpm.beneficiosweb.utils.GenericUtils;
+import cl.jbug.jbpm.beneficiosweb.utils.PropertiesUtils;
+import cl.jbug.jbpm.beneficiosweb.utils.ServletUtils;
 
 /**
  * @author psep
@@ -41,18 +46,75 @@ public class UserBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(UserBean.class);
 	private UserTO user;
-	
+	private boolean esOperador;
+
 	@PostConstruct
 	private void init() {
+		this.esOperador = false;
 		this.user = new UserTO();
+		ServletUtils.setUser(null);
 	}
 
 	public String loginAction() {
 		GenericUtils.removeManagedBean("bandejaTareasBean");
 		GenericUtils.removeManagedBean("solicitudBean");
-		logger.info("user: " + this.user.getUsername());
 
-		return "main?faces-redirect=true";
+		if (this.auth() && !this.esOperador) {
+			return "main?faces-redirect=true";
+		} else if (this.auth() && this.esOperador) {
+			return "ingreso?faces-redirect=true";
+		} else {
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage(
+					FacesMessage.SEVERITY_ERROR, "Error: Los datos no son correctos",
+					"Error: Los datos no son correctos");
+			context.addMessage(null, message);
+			
+			ServletUtils.setUser(null);
+
+			return "login";
+		}
+	}
+	
+	public String logoutAction() {
+		this.init();
+		
+		return "login";
+	}
+
+	public boolean auth() {
+		try {
+			String passwd = PropertiesUtils.getProperty(
+					this.user.getUsername(), PropertiesUtils.USERS_FILE);
+
+			if (passwd != null && passwd.equals(this.user.getPassword())) {
+				UserTO _user = new UserTO();
+				_user.setUsername(this.user.getUsername());
+				_user.setPassword(passwd);
+				
+				String roles = PropertiesUtils.getProperty(_user.getUsername(),
+						PropertiesUtils.ROLES_FILE);
+				String[] rolesArr = roles.split(",");
+				
+				_user.setRoles(Arrays.asList(rolesArr));
+				
+				ServletUtils.setUser(_user);
+				
+				for (String rol : rolesArr) {
+					if (rol.equals("operador")) {
+						this.esOperador = true;
+						break;
+					}
+				}
+
+				return true;
+			}
+
+		} catch (Exception e) {
+			logger.error("Usuario no encontrado");
+		}
+
+		return false;
 	}
 
 	public UserTO getUser() {
@@ -61,6 +123,14 @@ public class UserBean implements Serializable {
 
 	public void setUser(UserTO user) {
 		this.user = user;
+	}
+
+	public boolean isEsOperador() {
+		return esOperador;
+	}
+
+	public void setEsOperador(boolean esOperador) {
+		this.esOperador = esOperador;
 	}
 
 }
