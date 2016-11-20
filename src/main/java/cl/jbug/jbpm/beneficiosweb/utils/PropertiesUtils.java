@@ -28,8 +28,9 @@ import java.util.Properties;
  */
 public final class PropertiesUtils {
 	
-	public static final String USERS_FILE = "/home/psep/jbpm-installer/wildfly-8.1.0.Final/standalone/configuration/users.properties";
-	public static final String ROLES_FILE = "/home/psep/jbpm-installer/wildfly-8.1.0.Final/standalone/configuration/roles.properties";
+	private static final String CONF_BASE = "/opt/jboss/wildfly/standalone/configuration/";
+	public static final String USERS_FILE = CONF_BASE + "jbpm-users.properties";
+	public static final String ROLES_FILE = CONF_BASE + "jbpm-roles.properties";
 	
 	public static final String getProperty(String key, String file) throws IOException {
 		InputStream input = new FileInputStream(file);

@@ -34,7 +34,6 @@ import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
-import org.kie.remote.client.api.RemoteRestRuntimeEngineFactory;
 import org.kie.services.client.api.RemoteRuntimeEngineFactory;
 
 import com.google.gson.Gson;
@@ -50,7 +49,7 @@ import cl.jbug.jbpm.beneficiosweb.utils.ServletUtils;
 public class JbpmDAO {
 
 	private static final Logger logger = Logger.getLogger(JbpmDAO.class);
-	private static final String DEPLOYMENT_ID = "cl.jbug.jbpm:beneficios:1.0";
+	private static final String DEPLOYMENT_ID = "cl.jbug.jbpm:beneficios:1.1";
 	private static final String PROCESS_DEF = "beneficios.IngresoSolicitud";
 
 	private static final String LOCALE = "en-UK";
@@ -68,8 +67,7 @@ public class JbpmDAO {
 	 * @param params
 	 * @throws MalformedURLException
 	 */
-	public void completeTask(long taskId, Map<String, Object> params)
-			throws MalformedURLException {
+	public void completeTask(long taskId, Map<String, Object> params) throws MalformedURLException {
 		startTask(DEPLOYMENT_ID, taskId);
 		endTask(DEPLOYMENT_ID, taskId, params);
 	}
@@ -83,8 +81,7 @@ public class JbpmDAO {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("solicitante", solicitante);
 
-			ProcessInstance instance = initProcess(DEPLOYMENT_ID, PROCESS_DEF,
-					params);
+			ProcessInstance instance = initProcess(DEPLOYMENT_ID, PROCESS_DEF, params);
 
 			return instance.getId();
 
@@ -101,14 +98,11 @@ public class JbpmDAO {
 	 */
 	public Solicitante getSolicitante(long processInstanceId) {
 		try {
-			Map<String, Object> variables = this
-					.getVariables(processInstanceId);
+			Map<String, Object> variables = this.getVariables(processInstanceId);
 			String json = (String) variables.get("resultado");
 
-			Solicitante solicitante = new Gson().fromJson(json,
-					Solicitante.class);
-			solicitante.setMensaje(solicitante.getMensaje().replace("<br/>",
-					"\n"));
+			Solicitante solicitante = new Gson().fromJson(json, Solicitante.class);
+			solicitante.setMensaje(solicitante.getMensaje().replace("<br/>", "\n"));
 
 			return solicitante;
 
@@ -126,9 +120,7 @@ public class JbpmDAO {
 		List<TaskSummary> tasks = new ArrayList<TaskSummary>();
 
 		try {
-			tasks = getTaskService(DEPLOYMENT_ID)
-					.getTasksAssignedAsPotentialOwner(this.user.getUsername(),
-							LOCALE);
+			tasks = getTaskService(DEPLOYMENT_ID).getTasksAssignedAsPotentialOwner(this.user.getUsername(), LOCALE);
 
 		} catch (Exception e) {
 			logger.error(e, e);
@@ -142,15 +134,13 @@ public class JbpmDAO {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public Map<String, Object> getVariables(long processInstanceId)
-			throws MalformedURLException {
+	public Map<String, Object> getVariables(long processInstanceId) throws MalformedURLException {
 		Map<String, Object> variables = new HashMap<String, Object>();
 		RuntimeEngine engine = getRuntimeEngine(DEPLOYMENT_ID);
 
 		AuditService auditService = engine.getAuditService();
 
-		List<? extends VariableInstanceLog> variablesLog = auditService
-				.findVariableInstances(processInstanceId);
+		List<? extends VariableInstanceLog> variablesLog = auditService.findVariableInstances(processInstanceId);
 
 		for (VariableInstanceLog v : variablesLog) {
 			logger.info(v.getVariableId() + ": " + v.getValue());
@@ -160,20 +150,17 @@ public class JbpmDAO {
 		return variables;
 	}
 
-	public void startTask(String deploymentId, long taskId)
-			throws MalformedURLException {
+	public void startTask(String deploymentId, long taskId) throws MalformedURLException {
 		TaskService taskService = getTaskService(deploymentId);
 		taskService.start(taskId, this.user.getUsername());
 	}
 
-	public void endTask(String deploymentId, long taskId,
-			Map<String, Object> params) throws MalformedURLException {
+	public void endTask(String deploymentId, long taskId, Map<String, Object> params) throws MalformedURLException {
 		TaskService taskService = getTaskService(deploymentId);
 		taskService.complete(taskId, this.user.getUsername(), params);
 	}
 
-	public TaskService getTaskService(String deploymentId)
-			throws MalformedURLException {
+	public TaskService getTaskService(String deploymentId) throws MalformedURLException {
 		RuntimeEngine engine = getRuntimeEngine(deploymentId);
 
 		TaskService taskService = engine.getTaskService();
@@ -182,8 +169,8 @@ public class JbpmDAO {
 		return taskService;
 	}
 
-	public ProcessInstance initProcess(String deploymentId, String processDef,
-			Map<String, Object> params) throws MalformedURLException {
+	public ProcessInstance initProcess(String deploymentId, String processDef, Map<String, Object> params)
+			throws MalformedURLException {
 		KieSession ksession = getRuntimeEngine(deploymentId).getKieSession();
 		ProcessInstance processInstance = null;
 
@@ -200,16 +187,10 @@ public class JbpmDAO {
 		return processInstance;
 	}
 
-	private RuntimeEngine getRuntimeEngine(String deploymentId)
-			throws MalformedURLException {
+	private RuntimeEngine getRuntimeEngine(String deploymentId) throws MalformedURLException {
 		URL baseUrl = new URL(BASE_URL);
-		RemoteRestRuntimeEngineFactory restSessionFactory = RemoteRuntimeEngineFactory
-				.newRestBuilder().addDeploymentId(deploymentId).addUrl(baseUrl)
-				.addUserName(this.user.getUsername())
-				.addPassword(this.user.getPassword()).addTimeout(24000)
-				.buildFactory();
-
-		return restSessionFactory.newRuntimeEngine();
+		return RemoteRuntimeEngineFactory.newRestBuilder().addUrl(baseUrl).addUserName(this.user.getUsername())
+				.addPassword(this.user.getPassword()).addDeploymentId(deploymentId).build();
 	}
 
 }
